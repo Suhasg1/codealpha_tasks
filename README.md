@@ -4,7 +4,8 @@
 
 ![Nature Group Banner](https://images.unsplash.com/photo-1542838132-92c53300491e?w=900&q=80)
 
-**A full-stack e-commerce web application for Nature Group — selling Premium Dry Fruits, Spices & Seeds**
+### 🏢 CodeAlpha Internship — Full Stack Web Development
+### 📌 Task 1 — E-Commerce Web Application
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-2.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
@@ -14,6 +15,18 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
 </div>
+
+---
+
+## 🏢 Internship Details
+
+| Field | Details |
+|-------|---------|
+| **Organization** | CodeAlpha |
+| **Internship Domain** | Full Stack Web Development |
+| **Task Number** | Task 1 |
+| **Project Name** | Nature Group — E-Commerce Web Application |
+| **Tech Stack** | Python Flask + SQLite + HTML + CSS + JavaScript |
 
 ---
 
@@ -33,9 +46,9 @@
 
 ## 🌱 About the Project
 
-**Nature Group** is a full-stack e-commerce web application built as part of a Full Stack Web Development project. It allows users to browse, search, and purchase premium natural products including Dry Fruits, Spices, and Seeds.
+**Nature Group** is a full-stack e-commerce web application developed as **Task 1** of the **CodeAlpha Full Stack Web Development Internship**.
 
-The project demonstrates end-to-end web development — from a Python Flask REST API backend with SQLite database, to a fully responsive vanilla HTML/CSS/JavaScript frontend.
+The application allows users to browse, search, and purchase premium natural products including Dry Fruits, Spices, and Seeds. It demonstrates complete end-to-end web development — from a Python Flask REST API backend with SQLite database, to a fully responsive vanilla HTML/CSS/JavaScript frontend.
 
 > 💡 All product prices are based on **Bangalore market rates (2025)**.
 
@@ -95,7 +108,7 @@ The project demonstrates end-to-end web development — from a Python Flask REST
 ## 📁 Project Structure
 
 ```
-nature_group/
+codealpha_tasks/
 │
 ├── backend/
 │   ├── app.py                  ← Flask server — all routes + REST API
@@ -122,6 +135,7 @@ nature_group/
 │       ├── login.html          ← User login page
 │       └── register.html       ← User registration page
 │
+├── requirements.txt
 └── README.md
 ```
 
@@ -138,8 +152,8 @@ nature_group/
 
 **Step 1 — Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/nature-group.git
-cd nature-group
+git clone https://github.com/YOUR_USERNAME/codealpha_tasks.git
+cd codealpha_tasks
 ```
 
 **Step 2 — Create a virtual environment**
@@ -153,10 +167,6 @@ Windows (Command Prompt):
 ```bash
 venv\Scripts\activate.bat
 ```
-Windows (PowerShell):
-```bash
-venv\Scripts\Activate.ps1
-```
 Mac / Linux:
 ```bash
 source venv/bin/activate
@@ -164,7 +174,7 @@ source venv/bin/activate
 
 **Step 4 — Install dependencies**
 ```bash
-pip install flask
+pip install -r requirements.txt
 ```
 
 **Step 5 — Run the server**
@@ -179,18 +189,6 @@ http://localhost:5000
 ```
 
 > ✅ The SQLite database is **automatically created** on first run with all 26 products seeded. No extra setup needed!
-
-### Resetting the Database
-```bash
-# Windows
-del backend\nature_group.db
-
-# Mac / Linux
-rm backend/nature_group.db
-
-# Then restart
-python app.py
-```
 
 ---
 
@@ -350,18 +348,29 @@ CREATE TABLE orders (
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Intern Details
 
-Built as a **Full Stack Web Development Project**
+| Field | Details |
+|-------|---------|
+| **Internship** | CodeAlpha |
+| **Domain** | Full Stack Web Development |
+| **Task** | Task 1 — E-Commerce Web Application |
+| **Project** | Nature Group Online Store |
+| **Duration** | 2025 |
 
 ---
 
 ## 📄 License
 
-This project is built for educational purposes as part of a Full Stack Development course.
+This project is developed as part of the **CodeAlpha Full Stack Web Development Internship** and is intended for educational and internship submission purposes.
 
 ---
 
 <div align="center">
-  Made with ❤️ and 🌿 — Nature Group
+
+### 🌿 Nature Group E-Commerce
+**CodeAlpha Internship — Full Stack Web Development — Task 1**
+
+Made with ❤️ for CodeAlpha Internship
+
 </div>
