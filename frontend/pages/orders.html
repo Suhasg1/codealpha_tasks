@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders – Nature Group</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .orders-wrap { max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+    .order-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(26,58,42,.08); margin-bottom: 1.25rem; }
+    .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; }
+    .order-id   { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--forest); }
+    .order-date { font-size: .82rem; color: var(--muted); margin-top: .15rem; }
+    .status-badge { padding: 4px 12px; border-radius: 50px; font-size: .78rem; font-weight: 700; }
+    .status-Processing { background: #fff7e6; color: #c8963e; }
+    .status-Shipped    { background: #e8f5ec; color: var(--sage); }
+    .status-Delivered  { background: #d1fae5; color: #059669; }
+    .order-items-row { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: 1rem; }
+    .item-pill { display: flex; align-items: center; gap: 5px; background: var(--cream); padding: .35rem .85rem; border-radius: 50px; font-size: .82rem; color: var(--forest); }
+    .order-footer { display: flex; justify-content: space-between; align-items: center; padding-top: .85rem; border-top: 1px solid #e8f0e9; flex-wrap: wrap; gap: .5rem; }
+    .order-total { font-weight: 700; color: var(--forest); }
+    .order-addr  { font-size: .78rem; color: var(--muted); max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌿</div>
+      <div><div class="navbar-logo-name">Nature Group</div><div class="navbar-logo-tagline">Pure from Nature</div></div>
+    </a>
+    <div class="navbar-links">
+      <a href="/">Home</a><a href="/products">Shop</a>
+      <a href="/orders" class="active" id="nav-orders-link">My Orders</a>
+    </div>
+    <div class="navbar-right">
+      <span id="nav-user-name"></span>
+      <a href="/cart" class="cart-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <a href="/login" class="btn-nav" id="nav-login-btn">Login</a>
+      <button class="btn-nav" id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="page-header-inner"><h1>📦 My Orders</h1></div>
+  </div>
+  <div class="orders-wrap" id="orders-content">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>🌿 Nature Group</h4><p>100% natural products sourced from the best farms.</p></div>
+    <div><h4>Shop</h4><ul><li><a href="/products">All Products</a></li></ul></div>
+    <div><h4>Support</h4><ul><li><a href="#">Contact Us</a></li><li><a href="#">Returns</a></li></ul></div>
+    <div><h4>Account</h4><ul><li><a href="/orders">My Orders</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2024 Nature Group.</span><span>🌱 Free Shipping ₹500+</span></div>
+</footer>
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script>
+  async function loadOrders() {
+    const me = await apiFetch('/api/me');
+    if (!me.logged_in) { window.location.href = '/login'; return; }
+
+    const orders  = await apiFetch('/api/orders');
+    const wrap    = document.getElementById('orders-content');
+
+    if (!orders.length) {
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <div class="big-emoji">📦</div>
+          <h2>No Orders Yet</h2>
+          <p>You haven't placed any orders yet. Start shopping!</p>
+          <a href="/products" class="btn btn-primary btn-lg">Shop Now</a>
+        </div>`;
+      return;
+    }
+
+    wrap.innerHTML = orders.map(o => {
+      const date = new Date(o.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      const icon = o.status === 'Processing' ? '⏳' : o.status === 'Shipped' ? '🚚' : '✅';
+      return `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <div class="order-id">Order #${o.id}</div>
+              <div class="order-date">${date} &nbsp;·&nbsp; ${o.payment || 'COD'}</div>
+            </div>
+            <span class="status-badge status-${o.status}">${icon} ${o.status}</span>
+          </div>
+          <div class="order-items-row">
+            ${o.items.map(i => `<span class="item-pill">${i.emoji} ${i.name} ×${i.qty}</span>`).join('')}
+          </div>
+          <div class="order-footer">
+            <div>
+              <div class="order-total">₹${o.total.toFixed(0)} ${o.shipping === 0 ? '(Free Shipping)' : '(+₹' + o.shipping + ' ship)'}</div>
+              <div class="order-addr">📍 ${o.address || 'Address not saved'}</div>
+            </div>
+            <a href="/products" class="btn btn-secondary btn-sm">Reorder</a>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadOrders);
+</script>
+</body>
+</html>

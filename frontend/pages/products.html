@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop – Nature Group</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .shop-layout {
+      max-width: 1280px; margin: 0 auto; padding: 2rem;
+      display: grid; grid-template-columns: 260px 1fr; gap: 2rem;
+    }
+    /* Sidebar */
+    .sidebar .card { padding: 1.5rem; }
+    .sidebar h3 { color: var(--forest); margin-bottom: 1rem; }
+    .filter-group { margin-bottom: 1.5rem; }
+    .filter-group h4 { font-size: .78rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; margin-bottom: .6rem; font-family: 'DM Sans', sans-serif; }
+    .filter-btn {
+      display: block; width: 100%; text-align: left;
+      padding: .45rem .75rem; border-radius: 8px; border: none;
+      background: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: .875rem; color: var(--text); transition: all .2s;
+      margin-bottom: .2rem;
+    }
+    .filter-btn:hover { background: var(--cream); }
+    .filter-btn.active { background: var(--sage); color: var(--white); font-weight: 600; }
+    /* Shop header */
+    .shop-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .shop-top h2 { font-size: 1.5rem; color: var(--forest); }
+    .result-count { color: var(--muted); font-size: .875rem; display: block; }
+    .sort-select {
+      padding: .5rem 1rem; border: 1.5px solid var(--mint); border-radius: 8px;
+      background: var(--white); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: .875rem; cursor: pointer; outline: none;
+    }
+    .sort-select:focus { border-color: var(--sage); }
+    .search-row { margin-bottom: 1.5rem; }
+    .search-row input {
+      width: 100%; padding: .65rem 1rem;
+      border: 1.5px solid var(--mint); border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: .9rem;
+      background: var(--white); outline: none; transition: border .2s;
+    }
+    .search-row input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(74,124,89,.1); }
+    @media (max-width: 900px) { .shop-layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌿</div>
+      <div><div class="navbar-logo-name">Nature Group</div><div class="navbar-logo-tagline">Pure from Nature</div></div>
+    </a>
+    <div class="navbar-links">
+      <a href="/">Home</a><a href="/products" class="active">Shop</a>
+      <a href="/products?category=Dry Fruits">Dry Fruits</a>
+      <a href="/products?category=Spices">Spices</a>
+      <a href="/products?category=Seeds">Seeds</a>
+      <a href="/orders" id="nav-orders-link" style="display:none">My Orders</a>
+    </div>
+    <div class="navbar-right">
+      <span id="nav-user-name"></span>
+      <a href="/cart" class="cart-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <a href="/login" class="btn-nav" id="nav-login-btn">Login</a>
+      <button class="btn-nav" id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="page-header-inner">
+      <h1>🛒 Our Products</h1>
+      <p>Premium dry fruits, spices and seeds — pure from nature to your table</p>
+    </div>
+  </div>
+
+  <div class="shop-layout">
+    <!-- SIDEBAR FILTERS -->
+    <aside class="sidebar">
+      <div class="card">
+        <h3>Filter</h3>
+        <div class="filter-group">
+          <h4>Category</h4>
+          <button class="filter-btn active" data-cat="All" onclick="setCategory('All',this)">🌿 All Products</button>
+          <button class="filter-btn" data-cat="Dry Fruits" onclick="setCategory('Dry Fruits',this)">🌰 Dry Fruits</button>
+          <button class="filter-btn" data-cat="Spices" onclick="setCategory('Spices',this)">🌸 Spices</button>
+          <button class="filter-btn" data-cat="Seeds" onclick="setCategory('Seeds',this)">⚪ Seeds</button>
+        </div>
+        <div class="filter-group">
+          <h4>Price Range</h4>
+          <button class="filter-btn" data-price onclick="setPriceFilter(0,200,this)">Under ₹200</button>
+          <button class="filter-btn" data-price onclick="setPriceFilter(200,500,this)">₹200 – ₹500</button>
+          <button class="filter-btn" data-price onclick="setPriceFilter(500,9999,this)">Above ₹500</button>
+          <button class="filter-btn active" data-price onclick="setPriceFilter(0,9999,this)">Any Price</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div>
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="🔍 Search products…" oninput="onSearchInput()">
+      </div>
+      <div class="shop-top">
+        <div>
+          <h2 id="cat-title">All Products</h2>
+          <span class="result-count" id="result-count"></span>
+        </div>
+        <select class="sort-select" id="sort-select" onchange="loadProducts()">
+          <option value="name">Sort: Name</option>
+          <option value="price_asc">Price: Low → High</option>
+          <option value="price_desc">Price: High → Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+      <div class="product-grid" id="products-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>🌿 Nature Group</h4><p>100% natural products sourced from the best farms.</p></div>
+    <div><h4>Shop</h4><ul><li><a href="/products?category=Dry Fruits">Dry Fruits</a></li><li><a href="/products?category=Spices">Spices</a></li><li><a href="/products?category=Seeds">Seeds</a></li></ul></div>
+    <div><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Quality Promise</a></li></ul></div>
+    <div><h4>Support</h4><ul><li><a href="#">Contact Us</a></li><li><a href="#">Returns</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2024 Nature Group.</span><span>🌱 Free Shipping ₹500+</span></div>
+</footer>
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script src="/static/js/products.js"></script>
+</body>
+</html>

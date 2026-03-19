@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product – Nature Group</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .breadcrumb {
+      background: var(--white); padding: .75rem 2rem;
+      font-size: .85rem; color: var(--muted);
+      border-bottom: 1px solid #e8f0e9; max-width: 100%;
+    }
+    .breadcrumb a { color: var(--sage); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .detail-layout {
+      max-width: 1100px; margin: 2.5rem auto; padding: 0 2rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+    }
+    .product-visual {
+      background: linear-gradient(135deg, var(--cream), #e8f5ec);
+      border-radius: 24px; aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9rem; box-shadow: var(--shadow); position: relative;
+    }
+    .product-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.4), transparent 60%);
+      border-radius: 24px;
+    }
+    .badge-large {
+      position: absolute; top: 20px; left: 20px;
+      background: var(--gold); color: var(--white);
+      padding: 5px 14px; border-radius: 50px;
+      font-size: .8rem; font-weight: 700;
+    }
+    .detail-cat { font-size: .8rem; color: var(--sage); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: .5rem; }
+    .detail-name { font-size: 2rem; color: var(--forest); line-height: 1.2; margin-bottom: .75rem; }
+    .detail-stars { color: var(--gold); font-size: 1.1rem; }
+    .detail-rating-text { color: var(--muted); font-size: .875rem; }
+    .detail-price-main { font-size: 2.25rem; font-weight: 700; color: var(--forest); }
+    .detail-price-info { display: flex; align-items: center; gap: .75rem; margin-top: .25rem; }
+    .detail-weight-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--cream); border: 1px solid var(--mint);
+      padding: .4rem 1rem; border-radius: 8px;
+      font-size: .875rem; font-weight: 600; color: var(--forest);
+      margin: 1rem 0;
+    }
+    .detail-desc {
+      color: var(--muted); line-height: 1.8; font-size: .95rem;
+      padding: 1.25rem; background: var(--cream);
+      border-radius: 12px; border-left: 3px solid var(--sage);
+      margin-bottom: 1.5rem;
+    }
+    .detail-stock { display: flex; align-items: center; gap: 6px; font-size: .875rem; margin-bottom: 1.25rem; }
+    .stock-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fern); }
+    .qty-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .qty-label { font-weight: 600; color: var(--forest); font-size: .9rem; }
+    .action-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .detail-meta {
+      margin-top: 1.5rem; padding-top: 1.5rem;
+      border-top: 1px solid #e8f0e9;
+      display: grid; grid-template-columns: 1fr 1fr; gap: .85rem;
+    }
+    .meta-item { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+    /* Related */
+    .related-section { max-width: 1100px; margin: 0 auto 3rem; padding: 0 2rem; }
+    .related-section h2 { color: var(--forest); margin-bottom: 1.25rem; font-size: 1.5rem; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 1rem; }
+    .related-card { background: var(--white); border-radius: 12px; box-shadow: 0 2px 12px rgba(26,58,42,.07); overflow: hidden; cursor: pointer; transition: all .25s; }
+    .related-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .related-img { background: linear-gradient(135deg, var(--cream), #e8f5ec); height: 110px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .related-body { padding: .75rem; }
+    .related-name  { font-weight: 600; font-size: .85rem; color: var(--forest); margin-bottom: .25rem; }
+    .related-price { font-weight: 700; color: var(--sage); font-size: .875rem; }
+    @media (max-width: 768px) { .detail-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌿</div>
+      <div><div class="navbar-logo-name">Nature Group</div><div class="navbar-logo-tagline">Pure from Nature</div></div>
+    </a>
+    <div class="navbar-links">
+      <a href="/">Home</a><a href="/products">Shop</a>
+      <a href="/products?category=Dry Fruits">Dry Fruits</a>
+      <a href="/products?category=Spices">Spices</a>
+      <a href="/products?category=Seeds">Seeds</a>
+      <a href="/orders" id="nav-orders-link" style="display:none">My Orders</a>
+    </div>
+    <div class="navbar-right">
+      <span id="nav-user-name"></span>
+      <a href="/cart" class="cart-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <a href="/login" class="btn-nav" id="nav-login-btn">Login</a>
+      <button class="btn-nav" id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">Home</a> › <a href="/products">Shop</a> › <span id="bc-name">Loading…</span>
+</div>
+
+<main>
+  <div class="detail-layout" id="detail-content">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
+  <div class="related-section">
+    <h2>You Might Also Like</h2>
+    <div class="related-grid" id="related-grid"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>🌿 Nature Group</h4><p>100% natural products sourced from the best farms.</p></div>
+    <div><h4>Shop</h4><ul><li><a href="/products?category=Dry Fruits">Dry Fruits</a></li><li><a href="/products?category=Spices">Spices</a></li><li><a href="/products?category=Seeds">Seeds</a></li></ul></div>
+    <div><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Quality Promise</a></li></ul></div>
+    <div><h4>Support</h4><ul><li><a href="#">Contact Us</a></li><li><a href="#">Returns</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2024 Nature Group.</span><span>🌱 Free Shipping ₹500+</span></div>
+</footer>
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script>
+  // Product ID injected by Flask: {{ product_id }}
+  const PID = {{ product_id }};
+  let qty = 1;
+
+  async function loadProduct() {
+    const p = await apiFetch(`/api/products/${PID}`);
+    if (p.error) { window.location.href = '/products'; return; }
+    document.title = p.name + ' – Nature Group';
+    document.getElementById('bc-name').textContent = p.name;
+    const save  = p.original_price ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+    const stars = '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5 - Math.round(p.rating));
+    document.getElementById('detail-content').innerHTML = `
+      <div>
+        <div class="product-visual" style="padding:0;overflow:hidden;">
+          ${p.badge ? `<span class="badge-large">${p.badge}</span>` : ''}
+          ${p.image_url
+            ? `<img src="${p.image_url}" alt="${p.name}"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:24px;"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <span style="font-size:9rem;display:${p.image_url ? 'none' : 'flex'};align-items:center;justify-content:center;width:100%;height:100%;">${p.emoji}</span>
+        </div>
+      </div>
+      <div>
+        <div class="detail-cat"><a href="/products?category=${p.category}" style="color:var(--sage)">${p.category}</a></div>
+        <h1 class="detail-name">${p.name}</h1>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+          <span class="detail-stars">${stars}</span>
+          <span class="detail-rating-text">${p.rating} / 5 &nbsp;·&nbsp; ${p.reviews} reviews</span>
+        </div>
+        <div class="detail-price-main">₹${p.price}</div>
+        <div class="detail-price-info">
+          ${p.original_price ? `<span class="price-old">MRP ₹${p.original_price}</span>` : ''}
+          ${save > 0 ? `<span class="price-save">Save ${save}%</span>` : ''}
+        </div>
+        <div class="detail-weight-tag">📦 ${p.weight} pack</div>
+        <div class="detail-desc">${p.description}</div>
+        <div class="detail-stock">
+          <div class="stock-dot"></div>
+          <span style="color:var(--sage);font-weight:600">In Stock</span>
+          <span style="color:var(--muted)"> — ${p.stock} units available</span>
+        </div>
+        <div class="qty-row">
+          <span class="qty-label">Quantity:</span>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <input class="qty-val" id="qty-display" value="1" readonly>
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-primary btn-lg" style="flex:1" onclick="doAddToCart(${p.id})">🛒 Add to Cart</button>
+          <button class="btn btn-gold btn-lg" style="flex:1" onclick="doBuyNow(${p.id})">Buy Now</button>
+        </div>
+        <div class="detail-meta">
+          <div class="meta-item">🚚 Free delivery above ₹500</div>
+          <div class="meta-item">🌱 100% Natural, No additives</div>
+          <div class="meta-item">✅ FSSAI Certified</div>
+          <div class="meta-item">🔄 7-day easy returns</div>
+        </div>
+      </div>`;
+    loadRelated(p.category, p.id);
+  }
+
+  function changeQty(delta) {
+    qty = Math.max(1, qty + delta);
+    document.getElementById('qty-display').value = qty;
+  }
+
+  async function doAddToCart(pid) {
+    await addToCart(pid, qty);
+  }
+
+  async function doBuyNow(pid) {
+    const ok = await addToCart(pid, qty);
+    if (ok) window.location.href = '/cart';
+  }
+
+  async function loadRelated(category, exclude) {
+    const products = await apiFetch(`/api/products?category=${encodeURIComponent(category)}`);
+    const related  = products.filter(p => p.id !== exclude).slice(0, 4);
+    document.getElementById('related-grid').innerHTML = related.map(p => `
+      <div class="related-card" onclick="location.href='/product/${p.id}'">
+        <div class="related-img" style="padding:0;overflow:hidden;">
+          ${p.image_url
+            ? `<img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <span style="font-size:3rem;display:${p.image_url ? 'none' : 'flex'};align-items:center;justify-content:center;width:100%;height:100%">${p.emoji}</span>
+        </div>
+        <div class="related-body">
+          <div class="related-name">${p.name}</div>
+          <div class="related-price">₹${p.price} <span style="font-size:.75rem;color:var(--muted);font-weight:400">${p.weight}</span></div>
+        </div>
+      </div>`).join('');
+  }
+
+  loadProduct();
+</script>
+</body>
+</html>

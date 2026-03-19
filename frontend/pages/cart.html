@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart – Nature Group</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .cart-layout {
+      max-width: 1100px; margin: 2rem auto; padding: 0 2rem;
+      display: grid; grid-template-columns: 1fr 360px; gap: 2rem;
+      align-items: start;
+    }
+    .cart-item {
+      background: var(--white); border-radius: 16px;
+      padding: 1.25rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 1.25rem;
+      box-shadow: 0 2px 12px rgba(26,58,42,.07);
+    }
+    .cart-item-img {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--cream), #e8f5ec);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-cat    { font-size: .7rem; color: var(--sage); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .cart-item-name   { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--forest); margin-top: .2rem; }
+    .cart-item-weight { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+    .cart-item-controls { display: flex; align-items: center; gap: .75rem; }
+    .cart-item-price { font-size: 1.1rem; font-weight: 700; color: var(--forest); }
+    .remove-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 1.1rem;
+      padding: .3rem; border-radius: 6px; transition: all .2s;
+    }
+    .remove-btn:hover { background: #fff0f0; color: #e05252; }
+    /* Summary */
+    .cart-summary { padding: 1.5rem; position: sticky; top: 80px; }
+    .cart-summary h3  { color: var(--forest); margin-bottom: 1.25rem; }
+    .summary-row { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); margin-bottom: .65rem; }
+    .summary-row.total { font-size: 1.1rem; font-weight: 700; color: var(--forest); padding-top: .65rem; border-top: 1px solid #e8f0e9; }
+    .free-ship-note { background: #e8f5ec; color: var(--sage); padding: .55rem 1rem; border-radius: 8px; font-size: .8rem; font-weight: 600; text-align: center; margin: .85rem 0; }
+    .free-ship-note.success { background: #d1fae5; }
+    @media (max-width: 768px) { .cart-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌿</div>
+      <div><div class="navbar-logo-name">Nature Group</div><div class="navbar-logo-tagline">Pure from Nature</div></div>
+    </a>
+    <div class="navbar-links">
+      <a href="/">Home</a><a href="/products">Shop</a>
+      <a href="/products?category=Dry Fruits">Dry Fruits</a>
+      <a href="/products?category=Spices">Spices</a>
+      <a href="/products?category=Seeds">Seeds</a>
+      <a href="/orders" id="nav-orders-link" style="display:none">My Orders</a>
+    </div>
+    <div class="navbar-right">
+      <span id="nav-user-name"></span>
+      <a href="/cart" class="cart-btn active">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <a href="/login" class="btn-nav" id="nav-login-btn">Login</a>
+      <button class="btn-nav" id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="page-header-inner"><h1>🛒 Shopping Cart</h1></div>
+  </div>
+  <div id="cart-wrapper">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>🌿 Nature Group</h4><p>100% natural products sourced from the best farms.</p></div>
+    <div><h4>Shop</h4><ul><li><a href="/products?category=Dry Fruits">Dry Fruits</a></li><li><a href="/products?category=Spices">Spices</a></li><li><a href="/products?category=Seeds">Seeds</a></li></ul></div>
+    <div><h4>Company</h4><ul><li><a href="#">About Us</a></li></ul></div>
+    <div><h4>Support</h4><ul><li><a href="#">Contact Us</a></li><li><a href="#">Returns</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2024 Nature Group.</span><span>🌱 Free Shipping ₹500+</span></div>
+</footer>
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script src="/static/js/cart.js"></script>
+</body>
+</html>

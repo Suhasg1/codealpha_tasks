@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – Nature Group</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .checkout-layout {
+      max-width: 1000px; margin: 2rem auto; padding: 0 2rem;
+      display: grid; grid-template-columns: 1fr 340px; gap: 2rem; align-items: start;
+    }
+    .section-card { background: var(--white); border-radius: 16px; padding: 1.75rem; box-shadow: 0 2px 12px rgba(26,58,42,.08); margin-bottom: 1.5rem; }
+    .section-card h3 { color: var(--forest); margin-bottom: 1.25rem; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .payment-option { display: flex; align-items: center; gap: .75rem; padding: .85rem 1rem; border: 2px solid var(--mint); border-radius: 10px; cursor: pointer; margin-bottom: .75rem; transition: all .2s; }
+    .payment-option:hover { border-color: var(--sage); background: var(--cream); }
+    .payment-option input[type=radio] { accent-color: var(--sage); width: 18px; height: 18px; cursor: pointer; }
+    .pay-name { font-weight: 600; color: var(--forest); font-size: .9rem; display: block; }
+    .pay-sub  { font-size: .78rem; color: var(--muted); }
+    /* Order summary */
+    .order-summary { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(26,58,42,.08); position: sticky; top: 80px; }
+    .order-summary h3 { color: var(--forest); margin-bottom: 1rem; }
+    .checkout-item { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; padding-bottom: .75rem; border-bottom: 1px solid #f0f4f1; }
+    .checkout-item:last-of-type { border-bottom: none; }
+    .checkout-item-emoji { font-size: 1.75rem; }
+    .checkout-item-info { flex: 1; }
+    .checkout-item-name  { font-weight: 600; font-size: .85rem; color: var(--forest); display: block; }
+    .checkout-item-qty   { font-size: .75rem; color: var(--muted); }
+    .checkout-item-price { font-weight: 700; font-size: .9rem; }
+    .sum-row { display: flex; justify-content: space-between; font-size: .875rem; color: var(--muted); margin-bottom: .5rem; }
+    .sum-row.total { font-size: 1.1rem; font-weight: 700; color: var(--forest); padding-top: .65rem; border-top: 1px solid #e8f0e9; }
+    .secure-note { margin-top: 1rem; padding: .65rem; background: var(--cream); border-radius: 8px; font-size: .78rem; color: var(--muted); text-align: center; }
+    /* Success */
+    .order-id-tag { background: var(--cream); border: 1px solid var(--mint); padding: .5rem 1.25rem; border-radius: 8px; font-weight: 700; color: var(--forest); display: inline-block; margin: .75rem 0; }
+    @media (max-width: 768px) { .checkout-layout { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌿</div>
+      <div><div class="navbar-logo-name">Nature Group</div><div class="navbar-logo-tagline">Pure from Nature</div></div>
+    </a>
+    <div class="navbar-links">
+      <a href="/">Home</a><a href="/products">Shop</a>
+      <a href="/orders" id="nav-orders-link" style="display:none">My Orders</a>
+    </div>
+    <div class="navbar-right">
+      <span id="nav-user-name"></span>
+      <a href="/cart" class="cart-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <a href="/login" class="btn-nav" id="nav-login-btn">Login</a>
+      <button class="btn-nav" id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="page-header-inner"><h1>🔐 Secure Checkout</h1></div>
+  </div>
+
+  <div id="checkout-wrapper">
+    <div class="checkout-layout">
+      <!-- DELIVERY ADDRESS -->
+      <div>
+        <div class="section-card">
+          <h3>📋 Delivery Address</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Full Name *</label><input class="form-control" id="d-name" placeholder="Your full name"></div>
+            <div class="form-group"><label>Phone *</label><input class="form-control" id="d-phone" type="tel" placeholder="10-digit mobile number"></div>
+            <div class="form-group full"><label>Address Line 1 *</label><input class="form-control" id="d-addr1" placeholder="Flat/House No., Street Name"></div>
+            <div class="form-group full"><label>Address Line 2 (optional)</label><input class="form-control" id="d-addr2" placeholder="Landmark, Area"></div>
+            <div class="form-group"><label>City *</label><input class="form-control" id="d-city" placeholder="City"></div>
+            <div class="form-group"><label>State *</label><input class="form-control" id="d-state" placeholder="State"></div>
+            <div class="form-group"><label>PIN Code *</label><input class="form-control" id="d-pin" placeholder="6-digit PIN"></div>
+          </div>
+        </div>
+
+        <!-- PAYMENT -->
+        <div class="section-card">
+          <h3>💳 Payment Method</h3>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="cod" checked>
+            <div><span class="pay-name">💵 Cash on Delivery</span><span class="pay-sub">Pay when your order arrives</span></div>
+          </label>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="upi">
+            <div><span class="pay-name">📱 UPI / PhonePe / GPay</span><span class="pay-sub">Instant payment via UPI</span></div>
+          </label>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="card">
+            <div><span class="pay-name">💳 Credit / Debit Card</span><span class="pay-sub">All major cards accepted</span></div>
+          </label>
+        </div>
+
+        <button class="btn btn-gold btn-lg btn-full" id="place-order-btn" onclick="placeOrder()">
+          🛒 Place Order
+        </button>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <aside class="order-summary">
+        <h3>Order Summary</h3>
+        <div id="order-summary-items"></div>
+        <div class="sum-row" style="margin-top:.5rem"><span>Subtotal</span><span id="summary-subtotal">—</span></div>
+        <div class="sum-row"><span>Shipping</span><span id="summary-shipping">—</span></div>
+        <div class="sum-row total"><span>Total</span><span id="summary-total">—</span></div>
+        <div class="secure-note">🔒 256-bit SSL encrypted checkout</div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>🌿 Nature Group</h4><p>100% natural products sourced from the best farms.</p></div>
+    <div><h4>Shop</h4><ul><li><a href="/products">All Products</a></li></ul></div>
+    <div><h4>Support</h4><ul><li><a href="#">Contact Us</a></li><li><a href="#">Returns</a></li></ul></div>
+    <div><h4>Legal</h4><ul><li><a href="#">Privacy Policy</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2024 Nature Group.</span><span>🌱 Free Shipping ₹500+</span></div>
+</footer>
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script src="/static/js/checkout.js"></script>
+</body>
+</html>

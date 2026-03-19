@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nature Group – Pure Dry Fruits, Spices & Seeds</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--forest) 0%, var(--pine) 50%, #1e4a30 100%);
+      padding: 5rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%234a7c59' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+    .hero-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+      align-items: center; position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(168,213,181,.18); border: 1px solid var(--mint);
+      color: var(--mint); padding: .35rem .9rem;
+      border-radius: 50px; font-size: .8rem; font-weight: 500; margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem; line-height: 1.1;
+      color: var(--white); margin-bottom: 1.25rem;
+    }
+    .hero h1 span { color: var(--gold-lt); }
+    .hero p { color: var(--mint); font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-stats { display: flex; gap: 2rem; margin-top: 2.5rem; }
+    .hero-stat strong { display: block; color: var(--white); font-size: 1.5rem; font-weight: 700; }
+    .hero-stat span   { color: var(--mint); font-size: .8rem; }
+    .hero-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .hero-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(168,213,181,.2);
+      border-radius: 16px; padding: 1.25rem;
+      text-align: center; transition: all .3s;
+    }
+    .hero-card:hover { background: rgba(255,255,255,.15); transform: translateY(-4px); }
+    .hero-card .emoji { font-size: 2.5rem; margin-bottom: .5rem; }
+    .hero-card h3 { color: var(--white); font-size: 1rem; font-family: 'Playfair Display', serif; margin-bottom: .2rem; }
+    .hero-card p  { color: var(--mint); font-size: .78rem; }
+
+    /* ── Features bar ── */
+    .features-bar {
+      background: var(--white); padding: 2rem;
+      border-bottom: 1px solid #e8f0e9;
+    }
+    .features-bar-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem;
+    }
+    .feature { display: flex; align-items: center; gap: .85rem; }
+    .feature-icon {
+      width: 46px; height: 46px; background: var(--cream);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .feature h4 { font-size: .875rem; font-weight: 600; color: var(--forest); font-family: 'DM Sans', sans-serif; }
+    .feature p  { font-size: .78rem; color: var(--muted); }
+
+    /* ── Category tabs ── */
+    .cat-tabs {
+      display: flex; gap: .75rem; margin-bottom: 2rem;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .cat-tab {
+      padding: .5rem 1.5rem; border-radius: 50px;
+      border: 2px solid var(--mint); background: var(--white);
+      color: var(--forest); font-weight: 600; font-size: .875rem;
+      cursor: pointer; transition: all .2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .cat-tab.active, .cat-tab:hover { background: var(--sage); border-color: var(--sage); color: var(--white); }
+
+    /* ── Promo banner ── */
+    .promo-banner {
+      background: linear-gradient(135deg, var(--forest), var(--pine));
+      padding: 3.5rem 2rem; text-align: center;
+    }
+    .promo-banner h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--white); margin-bottom: .75rem; }
+    .promo-banner p  { color: var(--mint); font-size: 1rem; margin-bottom: 1.75rem; }
+
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.5rem; }
+      .hero-cards { display: none; }
+      .features-bar-inner { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌿</div>
+      <div>
+        <div class="navbar-logo-name">Nature Group</div>
+        <div class="navbar-logo-tagline">Pure from Nature</div>
+      </div>
+    </a>
+    <div class="navbar-links">
+      <a href="/" class="active">Home</a>
+      <a href="/products">Shop</a>
+      <a href="/products?category=Dry Fruits">Dry Fruits</a>
+      <a href="/products?category=Spices">Spices</a>
+      <a href="/products?category=Seeds">Seeds</a>
+      <a href="/orders" id="nav-orders-link" style="display:none">My Orders</a>
+    </div>
+    <div class="navbar-right">
+      <span id="nav-user-name"></span>
+      <a href="/cart" class="cart-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <a href="/login" class="btn-nav" id="nav-login-btn">Login</a>
+      <button class="btn-nav" id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">🌱 100% Natural &amp; Pure</div>
+        <h1>Nature's Finest <span>Flavours</span> &amp; Nutrition</h1>
+        <p>Premium dry fruits, hand-picked spices and organic seeds — sourced directly from the best farms across India and beyond.</p>
+        <div class="hero-cta">
+          <a href="/products" class="btn btn-gold btn-lg">Shop Now 🛒</a>
+          <a href="/products?category=Dry Fruits" class="btn btn-outline btn-lg" style="color:var(--mint);border-color:var(--mint)">Explore Range</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong>50+</strong><span>Products</span></div>
+          <div class="hero-stat"><strong>10K+</strong><span>Customers</span></div>
+          <div class="hero-stat"><strong>100%</strong><span>Natural</span></div>
+        </div>
+      </div>
+      <div class="hero-cards">
+        <a href="/products?category=Dry Fruits" class="hero-card">
+          <div class="emoji">🌰</div><h3>Dry Fruits</h3><p>Almonds, Cashews &amp; more</p>
+        </a>
+        <a href="/products?category=Spices" class="hero-card">
+          <div class="emoji">🌸</div><h3>Spices</h3><p>Saffron, Pepper &amp; more</p>
+        </a>
+        <a href="/products?category=Seeds" class="hero-card">
+          <div class="emoji">🌿</div><h3>Seeds</h3><p>Chia, Flax &amp; more</p>
+        </a>
+        <a href="/products" class="hero-card">
+          <div class="emoji">🎁</div><h3>Gift Packs</h3><p>Curated combos</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES BAR -->
+  <section class="features-bar">
+    <div class="features-bar-inner">
+      <div class="feature"><div class="feature-icon">🚚</div><div><h4>Free Shipping</h4><p>On orders above ₹500</p></div></div>
+      <div class="feature"><div class="feature-icon">🌱</div><div><h4>100% Natural</h4><p>No preservatives added</p></div></div>
+      <div class="feature"><div class="feature-icon">✅</div><div><h4>Quality Tested</h4><p>FSSAI certified products</p></div></div>
+      <div class="feature"><div class="feature-icon">🔄</div><div><h4>Easy Returns</h4><p>7-day return policy</p></div></div>
+    </div>
+  </section>
+
+  <!-- FEATURED PRODUCTS -->
+  <section class="section" style="background:var(--cream)">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-eyebrow">Our Collection</span>
+        <h2 class="section-title">Shop by Category</h2>
+        <p class="section-sub">Discover nature's bounty across our three premium categories</p>
+      </div>
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="filterHome('All',this)">All Products</button>
+        <button class="cat-tab" onclick="filterHome('Dry Fruits',this)">🌰 Dry Fruits</button>
+        <button class="cat-tab" onclick="filterHome('Spices',this)">🌸 Spices</button>
+        <button class="cat-tab" onclick="filterHome('Seeds',this)">🌿 Seeds</button>
+      </div>
+      <div class="product-grid" id="home-products">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+      <div style="text-align:center;margin-top:2.5rem">
+        <a href="/products" class="btn btn-outline btn-lg">View All Products →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMO BANNER -->
+  <section class="promo-banner">
+    <h2>🎁 Festive Gift Packs Available</h2>
+    <p>Create your own custom mix of dry fruits, spices and seeds. Perfect for every celebration.</p>
+    <a href="/products" class="btn btn-gold btn-lg">Build Your Pack</a>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div><h4>🌿 Nature Group</h4><p>Bringing you the finest dry fruits, spices and seeds directly from nature's best sources. 100% natural, no preservatives.</p></div>
+    <div><h4>Shop</h4><ul><li><a href="/products?category=Dry Fruits">Dry Fruits</a></li><li><a href="/products?category=Spices">Spices</a></li><li><a href="/products?category=Seeds">Seeds</a></li><li><a href="/products">All Products</a></li></ul></div>
+    <div><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Our Story</a></li><li><a href="#">Quality Promise</a></li><li><a href="#">Sustainability</a></li></ul></div>
+    <div><h4>Support</h4><ul><li><a href="#">Contact Us</a></li><li><a href="#">Shipping Info</a></li><li><a href="#">Returns</a></li><li><a href="#">FAQ</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Nature Group. All rights reserved.</span>
+    <span>🌱 100% Natural &nbsp;|&nbsp; Free Shipping ₹500+</span>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script>
+  let allProducts = [], activeHomeCat = 'All';
+
+  async function loadHomeProducts() {
+    allProducts = await apiFetch('/api/products');
+    renderHome('All');
+  }
+
+  function filterHome(cat, btn) {
+    activeHomeCat = cat;
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderHome(cat);
+  }
+
+  function renderHome(cat) {
+    const list = cat === 'All' ? allProducts.slice(0, 8) : allProducts.filter(p => p.category === cat).slice(0, 8);
+    const grid = document.getElementById('home-products');
+    grid.innerHTML = list.length
+      ? list.map(p => buildProductCard(p)).join('')
+      : '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No products in this category.</p>';
+  }
+
+  loadHomeProducts();
+</script>
+</body>
+</html>
