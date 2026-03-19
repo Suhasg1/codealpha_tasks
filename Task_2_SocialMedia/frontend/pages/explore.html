@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore — ConnectSphere</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo"><div class="navbar-logo-icon">🌐</div> ConnectSphere</a>
+    <div class="navbar-search">
+      <span class="navbar-search-icon">🔍</span>
+      <input type="text" id="nav-search" placeholder="Search people…">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="navbar-links">
+      <a href="/">🏠 Home</a>
+      <a href="/explore" class="active">🔭 Explore</a>
+      <a href="#" id="nav-profile-btn" style="display:none">👤 Profile</a>
+      <a href="/login" id="nav-login-btn">Login</a>
+      <button id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <img class="nav-avatar" id="nav-avatar" src="" alt="avatar" style="display:none">
+    </div>
+  </div>
+</nav>
+
+<div style="max-width:1100px;margin:0 auto;padding:1.5rem 1rem">
+  <div class="page-header" style="padding:0;margin-bottom:1.5rem">
+    <h1 style="font-size:1.5rem">🔭 Explore People</h1>
+    <p style="color:var(--text3);margin-top:.25rem">Discover interesting people to follow</p>
+  </div>
+
+  <!-- Search Bar -->
+  <div style="margin-bottom:1.5rem;position:relative">
+    <input class="form-control" id="explore-search" placeholder="🔍 Search by name or username…"
+           oninput="debounceSearch()" style="max-width:480px">
+  </div>
+
+  <div class="explore-grid" id="explore-grid">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/static/js/main.js"></script>
+<script>
+  let searchTimer;
+  let currentUser = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = await checkAuth();
+    loadExplore();
+  });
+
+  function debounceSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(searchUsers, 300);
+  }
+
+  async function searchUsers() {
+    const q = document.getElementById('explore-search').value.trim();
+    if (!q) { loadExplore(); return; }
+    const users = await apiFetch(`/api/users/search?q=${encodeURIComponent(q)}`);
+    renderUsers(users);
+  }
+
+  async function loadExplore() {
+    const users = await apiFetch('/api/explore/users');
+    renderUsers(users);
+  }
+
+  function renderUsers(users) {
+    const grid = document.getElementById('explore-grid');
+    if (!users.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="big-icon">🔭</div><h3>No users found</h3></div>';
+      return;
+    }
+    const myId = currentUser?.id;
+    grid.innerHTML = users
+      .filter(u => !myId || u.id !== myId)
+      .map(u => `
+        <div class="card user-card">
+          <div onclick="location.href='/profile/${u.username}'" style="cursor:pointer">
+            ${avatarHTML(u.avatar, u.name, 72).replace('style="', 'style="margin:0 auto .75rem;border:3px solid var(--border);')}
+          </div>
+          <div class="user-card-name" onclick="location.href='/profile/${u.username}'">${u.name}</div>
+          <div class="user-card-username">@${u.username}</div>
+          ${u.bio ? `<div class="user-card-bio">${u.bio}</div>` : '<div class="user-card-bio" style="color:var(--text3)">No bio yet</div>'}
+          <div class="user-card-stats">
+            <div><strong>${u.followers_count || 0}</strong> followers</div>
+            <div><strong>${u.posts_count || 0}</strong> posts</div>
+          </div>
+          <button class="btn-follow ${u.is_following ? 'following' : ''} btn-full"
+                  onclick="toggleFollow('${u.username}', this)">
+            ${u.is_following ? 'Following' : '＋ Follow'}
+          </button>
+        </div>`).join('');
+  }
+</script>
+</body>
+</html>

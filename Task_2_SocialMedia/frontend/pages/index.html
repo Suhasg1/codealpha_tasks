@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConnectSphere — Home</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/theme.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo">
+      <div class="navbar-logo-icon">🌐</div>
+      ConnectSphere
+    </a>
+    <div class="navbar-search">
+      <span class="navbar-search-icon">🔍</span>
+      <input type="text" id="nav-search" placeholder="Search people…">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="navbar-links">
+      <a href="/" class="active">🏠 Home</a>
+      <a href="/explore">🔭 Explore</a>
+      <a href="/profile" id="nav-profile-btn" style="display:none">👤 Profile</a>
+      <a href="/login" id="nav-login-btn">Login</a>
+      <button id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <img class="nav-avatar" id="nav-avatar" src="" alt="avatar" style="display:none">
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <div class="card sidebar-nav">
+      <a href="/" class="active"><span class="nav-icon">🏠</span> Home</a>
+      <a href="/explore"><span class="nav-icon">🔭</span> Explore</a>
+      <a href="/profile" id="sidebar-profile-link"><span class="nav-icon">👤</span> Profile</a>
+    </div>
+    <div class="card widget" style="margin-top:1rem" id="trending-widget">
+      <h3>🔥 Trending</h3>
+      <div class="hashtag-item"><span class="hashtag-name">#DryFruits</span><span class="hashtag-count">124 posts</span></div>
+      <div class="hashtag-item"><span class="hashtag-name">#HealthyLiving</span><span class="hashtag-count">98 posts</span></div>
+      <div class="hashtag-item"><span class="hashtag-name">#Spices</span><span class="hashtag-count">76 posts</span></div>
+      <div class="hashtag-item"><span class="hashtag-name">#SuperFoods</span><span class="hashtag-count">61 posts</span></div>
+      <div class="hashtag-item"><span class="hashtag-name">#Wellness</span><span class="hashtag-count">54 posts</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN FEED -->
+  <main class="main-feed">
+    <!-- Create Post -->
+    <div class="create-post-card" id="create-post-section" style="display:none">
+      <div class="create-post-top">
+        <div id="cp-avatar"></div>
+        <textarea class="create-post-input" id="post-content"
+                  placeholder="What's on your mind?"
+                  oninput="updateCharCount(this)"></textarea>
+      </div>
+      <div style="margin-top:.75rem;padding-left:54px">
+        <input class="form-control" id="post-image-url" placeholder="🖼 Image URL (optional)" style="margin-bottom:.5rem">
+      </div>
+      <div class="create-post-footer" style="padding-left:54px">
+        <span class="char-count" id="char-count">500 characters remaining</span>
+        <button class="btn btn-primary" onclick="createPost()">✦ Post</button>
+      </div>
+    </div>
+
+    <!-- Login prompt for guests -->
+    <div class="card" id="guest-prompt" style="padding:1.25rem;margin-bottom:1rem;display:none;text-align:center">
+      <p style="color:var(--text2);margin-bottom:.75rem">Join ConnectSphere to post, like and follow people!</p>
+      <a href="/register" class="btn btn-primary" style="margin-right:.5rem">Sign Up Free</a>
+      <a href="/login" class="btn btn-outline">Login</a>
+    </div>
+
+    <!-- Feed -->
+    <div id="feed">
+      <div class="loading"><div class="spinner"></div><span>Loading feed…</span></div>
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+    <div class="card widget">
+      <h3>👥 Who to Follow</h3>
+      <div id="suggest-list">
+        <div class="loading" style="padding:.5rem"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div></div>
+      </div>
+    </div>
+    <div class="card widget" style="margin-top:1rem;font-size:.78rem;color:var(--text3);line-height:1.8">
+      <p>© 2025 ConnectSphere</p>
+      <p>CodeAlpha Internship · Task 2</p>
+      <p style="margin-top:.5rem">Full Stack Web Development</p>
+    </div>
+  </aside>
+</div>
+
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script>
+  let currentUser = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = await checkAuth();
+
+    // Setup profile links
+    if (currentUser.logged_in) {
+      document.getElementById('sidebar-profile-link').href = `/profile/${currentUser.username}`;
+      document.getElementById('create-post-section').style.display = 'block';
+      document.getElementById('guest-prompt').style.display = 'none';
+      const avatarEl = document.getElementById('cp-avatar');
+      avatarEl.innerHTML = avatarHTML(currentUser.avatar, currentUser.name, 42);
+      avatarEl.querySelector('img, div').style.cssText += ';border:2px solid var(--border);flex-shrink:0';
+    } else {
+      document.getElementById('guest-prompt').style.display = 'block';
+    }
+
+    loadFeed();
+    loadSuggestions();
+  });
+
+  function updateCharCount(textarea) {
+    const remaining = 500 - textarea.value.length;
+    const el = document.getElementById('char-count');
+    el.textContent = `${remaining} characters remaining`;
+    el.className = `char-count${remaining < 50 ? ' warn' : ''}${remaining < 0 ? ' over' : ''}`;
+  }
+
+  async function createPost() {
+    const content   = document.getElementById('post-content').value.trim();
+    const image_url = document.getElementById('post-image-url').value.trim();
+    if (!content) { showToast('Post cannot be empty', 'error'); return; }
+    if (content.length > 500) { showToast('Post too long (max 500 chars)', 'error'); return; }
+    const data = await apiFetch('/api/posts', { method: 'POST', body: { content, image_url } });
+    if (data.success) {
+      document.getElementById('post-content').value   = '';
+      document.getElementById('post-image-url').value = '';
+      document.getElementById('char-count').textContent = '500 characters remaining';
+      showToast('Post published! ✦');
+      loadFeed();
+    } else {
+      showToast(data.error || 'Error posting', 'error');
+    }
+  }
+
+  async function loadFeed() {
+    const feed = document.getElementById('feed');
+    const posts = await apiFetch('/api/posts');
+    if (!posts.length) {
+      feed.innerHTML = `
+        <div class="empty-state">
+          <div class="big-icon">🌐</div>
+          <h3>No posts yet</h3>
+          <p>Follow some people or create a post to get started!</p>
+        </div>`;
+      return;
+    }
+    const uid = currentUser?.id || null;
+    feed.innerHTML = posts.map(p => buildPostCard(p, uid)).join('');
+  }
+
+  async function loadSuggestions() {
+    const users = await apiFetch('/api/explore/users');
+    const list  = document.getElementById('suggest-list');
+    const me    = await apiFetch('/api/me');
+    const shown = users.filter(u => !me.logged_in || u.id !== me.id).slice(0, 5);
+    if (!shown.length) { list.innerHTML = '<p style="color:var(--text3);font-size:.82rem">No suggestions yet</p>'; return; }
+    list.innerHTML = shown.map(u => `
+      <div class="suggest-item">
+        <div onclick="location.href='/profile/${u.username}'" style="cursor:pointer">
+          ${avatarHTML(u.avatar, u.name, 38)}
+        </div>
+        <div class="suggest-info">
+          <div class="suggest-name" onclick="location.href='/profile/${u.username}'">${u.name}</div>
+          <div class="suggest-username">@${u.username}</div>
+        </div>
+        <button class="btn-follow ${u.is_following ? 'following' : ''}"
+                onclick="toggleFollow('${u.username}', this)">
+          ${u.is_following ? 'Following' : 'Follow'}
+        </button>
+      </div>`).join('');
+  }
+</script>
+</body>
+</html>

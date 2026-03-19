@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — ConnectSphere</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/theme.js"></script>
+</head>
+<body>
+<main>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🌐</div>
+        <h1>ConnectSphere</h1>
+        <p>Sign in to your account</p>
+      </div>
+
+      <div class="error-msg" id="error-msg"></div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input class="form-control" type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input class="form-control" type="password" id="password" placeholder="Your password"
+               onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-full" id="login-btn" onclick="doLogin()">
+        Sign In →
+      </button>
+
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;margin-top:1rem;font-size:.82rem;color:var(--text3)">
+        <div style="font-weight:700;color:var(--text2);margin-bottom:.4rem">🎭 Demo Accounts</div>
+        <div>Email: <span style="color:var(--blue-lt)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dfafadb6a6be9fbbbab2b0f1bcb0b2">[email&#160;protected]</a></span> &nbsp; Pass: <span style="color:var(--blue-lt)">demo123</span></div>
+        <div style="margin-top:.25rem">Email: <span style="color:var(--blue-lt)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4726352d32290723222a286924282a">[email&#160;protected]</a></span> &nbsp; Pass: <span style="color:var(--blue-lt)">demo123</span></div>
+      </div>
+
+      <div class="auth-divider">or</div>
+      <div class="auth-switch">
+        New to ConnectSphere? <a href="/register">Create account →</a>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="toast"></div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/static/js/main.js"></script>
+<script>
+  async function doLogin() {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl    = document.getElementById('error-msg');
+    const btn      = document.getElementById('login-btn');
+    errEl.style.display = 'none';
+    if (!email || !password) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+    const data = await apiFetch('/api/login', { method: 'POST', body:

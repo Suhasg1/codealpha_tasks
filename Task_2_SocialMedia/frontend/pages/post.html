@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post — ConnectSphere</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/theme.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo"><div class="navbar-logo-icon">🌐</div> ConnectSphere</a>
+    <div class="navbar-search">
+      <span class="navbar-search-icon">🔍</span>
+      <input type="text" id="nav-search" placeholder="Search people…">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="navbar-links">
+      <a href="/">🏠 Home</a>
+      <a href="/explore">🔭 Explore</a>
+      <a href="#" id="nav-profile-btn" style="display:none">👤 Profile</a>
+      <a href="/login" id="nav-login-btn">Login</a>
+      <button id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <img class="nav-avatar" id="nav-avatar" src="" alt="avatar" style="display:none">
+    </div>
+  </div>
+</nav>
+
+<div style="max-width:640px;margin:1.5rem auto;padding:0 1rem">
+  <a href="/" style="color:var(--text3);font-size:.875rem;display:flex;align-items:center;gap:.4rem;margin-bottom:1rem">
+    ← Back to feed
+  </a>
+  <div id="post-content-area">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/static/js/main.js"></script>
+<script>
+  const POST_ID = {{ post_id }};
+  document.addEventListener('DOMContentLoaded', async () => {
+    const me   = await checkAuth();
+    const post = await apiFetch(`/api/posts/${POST_ID}`);
+    if (post.error) {
+      document.getElementById('post-content-area').innerHTML =
+        '<div class="empty-state"><div class="big-icon">😕</div><h3>Post not found</h3></div>';
+      return;
+    }
+    document.title = `${post.name}'s post — ConnectSphere`;
+    const uid = me.logged_in ? me.id : null;
+    document.getElementById('post-content-area').innerHTML = buildPostCard(post, uid);
+    // Auto-open comments
+    const section = document.getElementById(`comments-${post.id}`);
+    if (section) { section.classList.add('open'); loadComments(post.id); }
+  });
+</script>
+</body>
+</html>

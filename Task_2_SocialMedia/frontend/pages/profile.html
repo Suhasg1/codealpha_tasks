@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — ConnectSphere</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .profile-layout { max-width: 680px; margin: 1.5rem auto; padding: 0 1rem; }
+    .edit-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:2000; align-items:center; justify-content:center; }
+    .edit-modal.open { display:flex; }
+    .edit-modal-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-xl); padding:2rem; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; }
+    .edit-modal-card h2 { font-size:1.1rem; margin-bottom:1.25rem; color:var(--text); }
+    .modal-close { float:right; background:none; border:none; color:var(--text3); font-size:1.2rem; cursor:pointer; }
+    .tab-bar { display:flex; border-bottom:1px solid var(--border); margin-bottom:1.25rem; }
+    .tab-btn { padding:.65rem 1.25rem; border:none; background:none; color:var(--text3); font-weight:700; font-size:.875rem; cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; font-family:'Nunito',sans-serif; }
+    .tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
+  </style>
+  <script src="/static/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-logo"><div class="navbar-logo-icon">🌐</div> ConnectSphere</a>
+    <div class="navbar-search">
+      <span class="navbar-search-icon">🔍</span>
+      <input type="text" id="nav-search" placeholder="Search people…">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="navbar-links">
+      <a href="/">🏠 Home</a>
+      <a href="/explore">🔭 Explore</a>
+      <a href="#" id="nav-profile-btn" class="active">👤 Profile</a>
+      <a href="/login" id="nav-login-btn">Login</a>
+      <button id="nav-logout-btn" style="display:none" onclick="logout()">Logout</button>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <img class="nav-avatar" id="nav-avatar" src="" alt="avatar" style="display:none">
+    </div>
+  </div>
+</nav>
+
+<div class="profile-layout">
+  <div id="profile-content">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+
+  <div class="tab-bar" id="tab-bar" style="display:none">
+    <button class="tab-btn active" onclick="showTab('posts',this)">📝 Posts</button>
+    <button class="tab-btn" onclick="showTab('followers',this)">👥 Followers</button>
+    <button class="tab-btn" onclick="showTab('following',this)">➕ Following</button>
+  </div>
+
+  <div id="posts-tab">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+  <div id="followers-tab" style="display:none"></div>
+  <div id="following-tab" style="display:none"></div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="edit-modal" id="edit-modal">
+  <div class="edit-modal-card">
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+    <h2>✏️ Edit Profile</h2>
+    <div class="form-group"><label>Name</label><input class="form-control" id="edit-name" placeholder="Your full name"></div>
+    <div class="form-group"><label>Bio</label><textarea class="form-control" id="edit-bio" placeholder="Tell people about yourself…" rows="3"></textarea></div>
+    <div class="form-group"><label>Avatar URL</label><input class="form-control" id="edit-avatar" placeholder="https://your-photo-url.com/photo.jpg"></div>
+    <div class="form-group"><label>Location</label><input class="form-control" id="edit-location" placeholder="City, Country"></div>
+    <div class="form-group"><label>Website</label><input class="form-control" id="edit-website" placeholder="yourwebsite.com"></div>
+    <button class="btn btn-primary btn-full" onclick="saveProfile()" style="margin-top:.5rem">Save Changes</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+<script>
+  // Get username from URL path or from session
+  const pathParts = window.location.pathname.split('/');
+  let profileUsername = pathParts[pathParts.length - 1];
+  // Flask injects: {{ profile_username }} — fallback to session
+  const flaskUsername = '{{ profile_username }}';
+  if (flaskUsername && flaskUsername !== 'None') profileUsername = flaskUsername;
+
+  let currentUser = null;
+  let profileData = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = await checkAuth();
+    // If no username in URL, use current user's username
+    if (!profileUsername || profileUsername === 'profile') {
+      if (currentUser.logged_in) profileUsername = currentUser.username;
+      else { location.href = '/login'; return; }
+    }
+    loadProfile();
+  });
+
+  async function loadProfile() {
+    profileData = await apiFetch(`/api/users/${profileUsername}`);
+    if (profileData.error) {
+      document.getElementById('profile-content').innerHTML =
+        '<div class="empty-state"><div class="big-icon">😕</div><h3>User not found</h3></div>';
+      return;
+    }
+
+    const isMe = currentUser.logged_in && currentUser.id === profileData.id;
+    document.title = `${profileData.name} — ConnectSphere`;
+
+    document.getElementById('profile-content').innerHTML = `
+      <div class="profile-header-card">
+        <div class="profile-cover"><div class="profile-cover-pattern"></div></div>
+        <div class="profile-info-section">
+          <div class="profile-avatar-wrap">
+            ${avatarHTML(profileData.avatar, profileData.name, 96)}
+          </div>
+          <div class="profile-actions">
+            ${isMe
+              ? `<button class="btn btn-outline" onclick="openEditModal()">✏️ Edit Profile</button>`
+              : `<button class="btn-follow ${profileData.is_following ? 'following' : ''}"
+                         style="padding:.5rem 1.25rem;font-size:.875rem"
+                         onclick="toggleFollow('${profileData.username}', this)">
+                   ${profileData.is_following ? 'Following' : 'Follow'}
+                 </button>`
+            }
+          </div>
+          <div class="profile-name">${profileData.name}</div>
+          <div class="profile-username">@${profileData.username}</div>
+          ${profileData.bio ? `<div class="profile-bio">${profileData.bio}</div>` : ''}
+          <div class="profile-meta">
+            ${profileData.location ? `<span>📍 ${profileData.location}</span>` : ''}
+            ${profileData.website ? `<span>🔗 <a href="https://${profileData.website}" target="_blank" style="color:var(--blue-lt)">${profileData.website}</a></span>` : ''}
+            <span>📅 Joined ${new Date(profileData.created_at).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</span>
+          </div>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <strong>${profileData.posts_count}</strong>
+              <span>Posts</span>
+            </div>
+            <div class="profile-stat">
+              <strong id="followers-count">${profileData.followers_count}</strong>
+              <span>Followers</span>
+            </div>
+            <div class="profile-stat">
+              <strong>${profileData.following_count}</strong>
+              <span>Following</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    document.getElementById('tab-bar').style.display = 'flex';
+    loadUserPosts();
+
+    // Pre-fill edit form
+    if (isMe) {
+      document.getElementById('edit-name').value     = profileData.name     || '';
+      document.getElementById('edit-bio').value      = profileData.bio      || '';
+      document.getElementById('edit-avatar').value   = profileData.avatar   || '';
+      document.getElementById('edit-location').value = profileData.location || '';
+      document.getElementById('edit-website').value  = profileData.website  || '';
+    }
+  }
+
+  async function loadUserPosts() {
+    const postsTab = document.getElementById('posts-tab');
+    postsTab.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const posts = await apiFetch(`/api/users/${profileUsername}/posts`);
+    if (!posts.length) {
+      postsTab.innerHTML = '<div class="empty-state"><div class="big-icon">📝</div><h3>No posts yet</h3><p>Nothing shared yet.</p></div>';
+      return;
+    }
+    const uid = currentUser?.id || null;
+    postsTab.innerHTML = posts.map(p => buildPostCard(p, uid)).join('');
+  }
+
+  function showTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('posts-tab').style.display     = tab === 'posts'     ? 'block' : 'none';
+    document.getElementById('followers-tab').style.display = tab === 'followers' ? 'block' : 'none';
+    document.getElementById('following-tab').style.display = tab === 'following' ? 'block' : 'none';
+    if (tab === 'posts')     loadUserPosts();
+    if (tab === 'followers') loadFollowList('followers');
+    if (tab === 'following') loadFollowList('following');
+  }
+
+  async function loadFollowList(type) {
+    // Simple display — not a separate API in this version
+    const el = document.getElementById(`${type}-tab`);
+    el.innerHTML = `<div class="empty-state"><div class="big-icon">👥</div><h3>${type === 'followers' ? profileData.followers_count + ' Followers' : profileData.following_count + ' Following'}</h3><p>Visit their profiles to connect!</p></div>`;
+  }
+
+  function openEditModal() {
+    document.getElementById('edit-modal').classList.add('open');
+  }
+  function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+  }
+
+  async function saveProfile() {
+    const data = await apiFetch(`/api/users/${profileUsername}/update`, {
+      method: 'PUT',
+      body: {
+        name:     document.getElementById('edit-name').value.trim(),
+        bio:      document.getElementById('edit-bio').value.trim(),
+        avatar:   document.getElementById('edit-avatar').value.trim(),
+        location: document.getElementById('edit-location').value.trim(),
+        website:  document.getElementById('edit-website').value.trim(),
+      }
+    });
+    if (data.success) {
+      closeEditModal();
+      showToast('Profile updated!');
+      loadProfile();
+    } else {
+      showToast(data.error || 'Error', 'error');
+    }
+  }
+</script>
+</body>
+</html>
